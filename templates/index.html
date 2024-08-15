@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Placement Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-container input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .form-container input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            font-size: 1.5em;
+            color: #4CAF50;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Student Placement Prediction</h2>
+        <form action="/predict" method="post">
+            <label for="IQ">IQ:</label>
+            <input type="number" id="IQ" name="IQ" required>
+            
+            <label for="CGPA">CGPA:</label>
+            <input type="number" step="0.01" id="CGPA" name="CGPA" required>
+            
+            <label for="10th_Marks">10th Marks:</label>
+            <input type="number" id="10th_Marks" name="10th_Marks" required>
+            
+            <label for="12th_Marks">12th Marks:</label>
+            <input type="number" id="12th_Marks" name="12th_Marks" required>
+            
+            <label for="Communication_Skills">Communication Skills:</label>
+            <input type="number" step="0.01" id="Communication_Skills" name="Communication_Skills" required>
+            
+            <input type="submit" value="Predict">
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+
+    <!-- JavaScript to handle form submission -->
+    <script>
+        document.querySelector('form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST', // Ensure the method is POST
+                body: formData
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerText = `Placement prediction: ${result.placement ? 'Likely to be placed' : 'Not likely to be placed'}`;
+        });
+    </script>
+</body>
+</html>
