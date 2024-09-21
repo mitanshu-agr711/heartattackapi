@@ -6,14 +6,15 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+app = Flask(__name__)
+
 # Load the model
 try:
     model = pickle.load(open('heart_attacl_model.pkl', 'rb'))
     logging.info("Model loaded successfully.")
 except Exception as e:
     logging.error(f"Error loading model: {e}")
-
-app = Flask(__name__)
+    model = None  # Ensure model is set to None if loading fails
 
 @app.route('/')
 def home():
@@ -22,35 +23,41 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    if model is None:
+        logging.error("Model not loaded. Cannot perform prediction.")
+        return jsonify({'error': 'Model not loaded'}), 500
+    
     try:
-        age = request.json['age']
-        sex = request.json['sex']
-        cp = request.json['cp']
-        trtbps = request.json['trtbps']
-        chol = request.json['chol']
-        fbs = request.json['fbs']
-        restecg = request.json['restecg']
-        thalachh = request.json['thalachh']
-        exng = request.json['exng']
-        oldpeak = request.json['oldpeak']
-        slp = request.json['slp']
-        caa = request.json['caa']
-        thall = request.json['thall']
+        print('request strted ')
+        # Parse JSON input
+        data = request.json
+        logging.debug(f"Received input: {data}")
 
-        logging.debug(f"Received input: {request.json}")
-
-        # Convert oldpeak to float in case it's provided as a string
-        oldpeak = float(oldpeak)
+        # Extract features
+        age = data['age']
+        sex = data['sex']
+        cp = data['cp']
+        trtbps = data['trtbps']
+        chol = data['chol']
+        fbs = data['fbs']
+        restecg = data['restecg']
+        thalachh = data['thalachh']
+        exng = data['exng']
+        oldpeak = float(data['oldpeak'])  # Ensure oldpeak is a float
+        slp = data['slp']
+        caa = data['caa']
+        thall = data['thall']
         
         # Prepare the input data for the model
         input_data = np.array([[age, sex, cp, trtbps, chol, fbs, restecg, thalachh, exng, oldpeak, slp, caa, thall]])
-        
+        logging.debug(f"Prepared input for model: {input_data}")
+        print(input_data)
         # Make the prediction
         result = model.predict(input_data)[0]
         logging.info(f"Prediction result: {result}")
 
         # Return prediction result
-        print("ye mai hu",result)
+        print('jfuygytuuffh',result)
         if result == 1:
             return jsonify({'result': 'You have a heart attack'})
         else:
@@ -62,3 +69,4 @@ def predict():
 
 if __name__ == '__main__':
     app.run(debug=True)
+  
